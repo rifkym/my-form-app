@@ -7,7 +7,7 @@
     body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
     .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
     input[type="text"], input[type="email"], input[type="date"], input[type="file"], select {
-      width: calc(100% - 22px); /* Adjusting for padding */
+      width: calc(100% - 22px);
       padding: 10px;
       margin-bottom: 10px;
       border: 1px solid #ddd;
@@ -25,7 +25,7 @@
       font-size: 16px;
     }
     button:hover { background-color: #0056b3; }
-    #message { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; } /* Hidden by default */
+    #message { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; }
     .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
   </style>
@@ -64,63 +64,36 @@
 
       const messageDiv = document.getElementById('message');
       messageDiv.textContent = 'Mengirim...';
-      messageDiv.className = ''; // Hapus kelas pesan sebelumnya
-      messageDiv.style.display = 'block'; // Tampilkan pesan
+      messageDiv.className = '';
+      messageDiv.style.display = 'block';
 
-      const formData = new FormData(this);
-      const dataToSend = {};
-      const filePromises = [];
-
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File && value.size > 0) { // Hanya proses jika file dipilih dan tidak kosong
-          filePromises.push(new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = function() {
-              dataToSend[key + '_data'] = reader.result.split(',')[1]; // Ambil konten base64
-              dataToSend[key + '_name'] = value.name;
-              dataToSend[key + '_type'] = value.type;
-              resolve();
-            };
-            reader.onerror = function(error) {
-              console.error("Error reading file:", error);
-              reject('Gagal membaca file: ' + error.message);
-            };
-            reader.readAsDataURL(value); // Baca file sebagai string base64
-          }));
-        } else if (!(value instanceof File)) { // Untuk data non-file
-          dataToSend[key] = value;
-        }
-      }
+      const formData = new FormData(this); // Otomatis membuat FormData dari form
 
       try {
-        await Promise.all(filePromises); // Tunggu semua file selesai dibaca
-
-        // Dapatkan URL Web App Anda yang akan dipublikasikan nanti
-        // URL ini akan terlihat seperti: https://script.google.com/macros/s/AKfycb.../exec
-        // Anda akan mengganti 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE' dengan URL asli.
+        // PASTIKAN URL INI BENAR-BENAR URL WEB APP APPS SCRIPT ANDA
         const url = 'https://script.google.com/macros/s/AKfycbwsmib3rfu23KT1uXacsuRlFHRBq_BND8Y00uFj4D7nc4mq1h_QCi1GISZP_LYGOUx1/exec'; 
 
         const response = await fetch(url, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json', // Kirim data sebagai JSON
-          },
-          body: JSON.stringify(dataToSend), // Kirim objek JSON
+          // TIDAK PERLU MENENTUKAN 'Content-Type' DI SINI,
+          // browser akan secara otomatis mengatur 'multipart/form-data'
+          // saat Anda mengirim objek FormData
+          body: formData, // Kirim objek FormData langsung
         });
 
-        const result = await response.text(); // Ambil respons dari Apps Script
+        const result = await response.text();
 
         if (response.ok) {
           messageDiv.textContent = 'Formulir berhasil dikirim dan file diunggah!';
           messageDiv.className = 'success';
-          document.getElementById('uploadForm').reset(); // Reset form setelah berhasil
+          document.getElementById('uploadForm').reset();
         } else {
           messageDiv.textContent = 'Gagal mengirim formulir: ' + result;
           messageDiv.className = 'error';
         }
       } catch (error) {
         console.error('Error submitting form:', error);
-        messageDiv.textContent = 'Terjadi kesalahan: ' + error.message;
+        messageDiv.textContent = 'Terjadi kesalahan jaringan: ' + error.message;
         messageDiv.className = 'error';
       }
     });

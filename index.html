@@ -1,37 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
   <title>Formulir Unggah File</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
-    .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
-    input[type="text"], input[type="email"], input[type="date"], input[type="file"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
-    input[type="radio"] { margin-right: 5px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    button { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
-    button:disabled { background-color: #aaa; cursor: not-allowed; }
-    button:hover:not(:disabled) { background-color: #0056b3; }
-    #message { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; text-align: center; }
-    .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-  </style>
-</head>
+  </head>
 <body>
   <div class="container">
     <h2>Formulir Unggah File</h2>
     <form id="uploadForm">
-      <label for="name">Nama:</label>
-      <input type="text" id="name" name="name" required><br>
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required><br>
-      <label for="dob">Tanggal Lahir:</label>
-      <input type="date" id="dob" name="dob"><br>
-      <label>Jenis Kelamin:</label>
-      <div>
-        <input type="radio" id="male" name="gender" value="Pria" checked> <label for="male" style="display: inline-block; font-weight: normal; margin-right: 20px;">Pria</label>
-        <input type="radio" id="female" name="gender" value="Wanita"> <label for="female" style="display: inline-block; font-weight: normal;">Wanita</label>
-      </div><br>
       <label for="resume">Resume (PDF):</label>
       <input type="file" id="resume" name="resume" accept=".pdf"><br>
       <label for="picture">Gambar:</label>
@@ -44,51 +19,20 @@
   <script>
     document.getElementById('uploadForm').addEventListener('submit', async function(event) {
       event.preventDefault();
-      const submitButton = document.getElementById('submitButton');
+      document.getElementById('submitButton').disabled = true;
       const messageDiv = document.getElementById('message');
-      submitButton.disabled = true;
-      submitButton.textContent = 'Mengirim...';
-      messageDiv.className = '';
-      messageDiv.style.display = 'block';
+      messageDiv.textContent = 'Mengirim...';
 
-      // **INI BAGIAN YANG BARU DAN LEBIH SEDERHANA**
-      // Buat FormData langsung dari form. Tidak ada lagi konversi Base64.
       const formData = new FormData(this);
-
-      // Log untuk memastikan. Tampilannya akan berbeda dari sebelumnya.
-      console.log('Mengirim FormData...');
-
       try {
-        // GANTI DENGAN URL DARI DEPLOYMENT BARU ANDA
-        const url = 'https://script.google.com/macros/s/AKfycbxvIaFhaGxxkIE7CPyIwlFUMLelmqeeG9fR4fEL5gPy97WUmhdtWJRWJ4Lq570Vjaxc/exec';
-
-        // Kirim FormData langsung. Jangan set header Content-Type, biarkan browser yang mengaturnya.
-        const response = await fetch(url, {
-          method: 'POST',
-          body: formData,
-        });
-
-        // Respons dari Apps Script sekarang adalah HTML, bukan JSON.
+        const url = 'https://script.google.com/macros/s/AKfycbzkq1F1Sy3tozg5TuF4Ale8B_RByPLWRtPCgA2TVIx5Zc5Jj3bCEFKZxqfuGDmmBfgC/exec';
+        const response = await fetch(url, { method: 'POST', body: formData });
         const resultHTML = await response.text();
-
-        // Tampilkan respons HTML dari server langsung di div pesan.
         messageDiv.innerHTML = resultHTML;
-        
-        // Cek apakah respons mengandung kata 'SUKSES' untuk menentukan warna
-        if (resultHTML.includes('SUKSES')) {
-            messageDiv.className = 'success';
-            document.getElementById('uploadForm').reset();
-        } else {
-            messageDiv.className = 'error';
-        }
-
       } catch (error) {
-        console.error('Error submitting form:', error);
-        messageDiv.textContent = 'Terjadi kesalahan jaringan yang fatal: ' + error.message;
-        messageDiv.className = 'error';
+        messageDiv.textContent = 'Terjadi kesalahan jaringan: ' + error.message;
       } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = 'Kirim Formulir';
+        document.getElementById('submitButton').disabled = false;
       }
     });
   </script>

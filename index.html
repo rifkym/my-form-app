@@ -25,15 +25,13 @@
       font-size: 16px;
     }
     button:hover { background-color: #0056b3; }
-    #message { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; }
-    .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    /* Bagian #message tidak akan dipakai lagi untuk tampilan pesan di halaman yang sama */
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Formulir Unggah File</h2>
-    <form id="uploadForm">
+    <form action="https://script.google.com/macros/s/AKfycbzPu7h99E24Rog5y9vNMIitTHe0xyac62ey9Ia-AG4XHg_b2mky6pLC3o2hxo1mpn6B/exec" method="POST" enctype="multipart/form-data">
       <label for="name">Nama:</label>
       <input type="text" id="name" name="name" required><br>
 
@@ -55,48 +53,6 @@
 
       <button type="submit">Kirim Formulir</button>
     </form>
-    <div id="message"></div>
-  </div>
-
-  <script>
-    document.getElementById('uploadForm').addEventListener('submit', async function(event) {
-      event.preventDefault(); // Mencegah form submit default
-
-      const messageDiv = document.getElementById('message');
-      messageDiv.textContent = 'Mengirim...';
-      messageDiv.className = '';
-      messageDiv.style.display = 'block';
-
-      const formData = new FormData(this); // Otomatis membuat FormData dari form
-
-      try {
-        // PASTIKAN URL INI BENAR-BENAR URL WEB APP APPS SCRIPT ANDA
-        const url = 'https://script.google.com/macros/s/AKfycbxJDHOJQBafyl0rBy--ChnCKFuQz17ltjgoRyYOUK3N7eZcoApoFMBGxPosi8Hj4CvV/exec'; 
-
-        const response = await fetch(url, {
-          method: 'POST',
-          // TIDAK PERLU MENENTUKAN 'Content-Type' DI SINI,
-          // browser akan secara otomatis mengatur 'multipart/form-data'
-          // saat Anda mengirim objek FormData
-          body: formData, // Kirim objek FormData langsung
-        });
-
-        const result = await response.text();
-
-        if (response.ok) {
-          messageDiv.textContent = 'Formulir berhasil dikirim dan file diunggah!';
-          messageDiv.className = 'success';
-          document.getElementById('uploadForm').reset();
-        } else {
-          messageDiv.textContent = 'Gagal mengirim formulir: ' + result;
-          messageDiv.className = 'error';
-        }
-      } catch (error) {
-        console.error('Error submitting form:', error);
-        messageDiv.textContent = 'Terjadi kesalahan jaringan: ' + error.message;
-        messageDiv.className = 'error';
-      }
-    });
-  </script>
+    </div>
 </body>
 </html>

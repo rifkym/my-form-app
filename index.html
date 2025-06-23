@@ -48,50 +48,37 @@
       const messageDiv = document.getElementById('message');
       submitButton.disabled = true;
       submitButton.textContent = 'Mengirim...';
-      messageDiv.textContent = 'Harap tunggu, file sedang diunggah...';
       messageDiv.className = '';
       messageDiv.style.display = 'block';
 
+      // Buat FormData langsung dari form. Tidak perlu konversi Base64.
       const formData = new FormData(this);
-      const dataToSend = {};
-      const filePromises = [];
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File && value.size > 0) {
-          filePromises.push(new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = function() {
-              dataToSend[key + '_data'] = reader.result.split(',')[1];
-              dataToSend[key + '_name'] = value.name;
-              dataToSend[key + '_type'] = value.type;
-              resolve();
-            };
-            reader.onerror = (error) => reject(error);
-            reader.readAsDataURL(value);
-          }));
-        } else if (!(value instanceof File)) { dataToSend[key] = value; }
-      }
 
       try {
-        await Promise.all(filePromises);
-        console.log('Data yang akan dikirim:', dataToSend);
+        const url = 'https://script.google.com/macros/s/AKfycbwHQdezTMxySKPGseVpfGMYxUZpU92us2l9Kq2Bwy4R21UD6WtyxxmkQgY8cpuYnpgn/exec'; // GANTI DENGAN URL DARI DEPLOYMENT BARU
 
-        // !!! GANTI URL DI BAWAH INI DENGAN URL DARI DEPLOYMENT BARU ANDA !!!
-        const url = 'https://script.google.com/macros/s/AKfycbz_vH1QtFahD1LaLqV5j2vJxQfml5XW0gvy8838HAQ3qQxNnOqfKFrqx6E-1Ce1ZPg/exec'; 
-
+        // Kirim FormData langsung. Jangan set header Content-Type, biarkan browser yang mengaturnya.
         const response = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8', },
-          body: JSON.stringify(dataToSend),
+          body: formData,
         });
-        const result = await response.json();
-        if (result.status === 'success') {
-          messageDiv.textContent = result.message;
-          messageDiv.className = 'success';
-          document.getElementById('uploadForm').reset();
-        } else { throw new Error(result.message); }
+
+        // Respons dari Apps Script sekarang adalah HTML, bukan JSON.
+        const resultHTML = await response.text();
+
+        // Tampilkan respons HTML dari server langsung di div pesan.
+        messageDiv.innerHTML = resultHTML;
+        
+        // Cek apakah respons mengandung kata 'SUKSES' untuk menentukan warna
+        if (resultHTML.includes('SUKSES')) {
+            messageDiv.className = 'success';
+            document.getElementById('uploadForm').reset();
+        } else {
+            messageDiv.className = 'error';
+        }
       } catch (error) {
         console.error('Error submitting form:', error);
-        messageDiv.textContent = 'Terjadi kesalahan: ' + error.message;
+        messageDiv.textContent = 'Terjadi kesalahan jaringan yang fatal: ' + error.message;
         messageDiv.className = 'error';
       } finally {
         submitButton.disabled = false;

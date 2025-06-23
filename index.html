@@ -2,7 +2,7 @@
 <html>
 <head>
   <base target="_top">
-  <title>Formulir Unggah File Kustom</title>
+  <title>Formulir Unggah File</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
     .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
@@ -51,11 +51,16 @@
       messageDiv.className = '';
       messageDiv.style.display = 'block';
 
-      // Buat FormData langsung dari form. Tidak perlu konversi Base64.
+      // **INI BAGIAN YANG BARU DAN LEBIH SEDERHANA**
+      // Buat FormData langsung dari form. Tidak ada lagi konversi Base64.
       const formData = new FormData(this);
 
+      // Log untuk memastikan. Tampilannya akan berbeda dari sebelumnya.
+      console.log('Mengirim FormData...');
+
       try {
-        const url = 'https://script.google.com/macros/s/AKfycbwHQdezTMxySKPGseVpfGMYxUZpU92us2l9Kq2Bwy4R21UD6WtyxxmkQgY8cpuYnpgn/exec'; // GANTI DENGAN URL DARI DEPLOYMENT BARU
+        // GANTI DENGAN URL DARI DEPLOYMENT BARU ANDA
+        const url = 'https://script.google.com/macros/s/AKfycbz_vH1QtFahD1LaLqV5j2vJxQfml5XW0gvy8838HAQ3qQxNnOqfKFrqx6E-1Ce1ZPg/exec';
 
         // Kirim FormData langsung. Jangan set header Content-Type, biarkan browser yang mengaturnya.
         const response = await fetch(url, {
@@ -76,6 +81,7 @@
         } else {
             messageDiv.className = 'error';
         }
+
       } catch (error) {
         console.error('Error submitting form:', error);
         messageDiv.textContent = 'Terjadi kesalahan jaringan yang fatal: ' + error.message;
